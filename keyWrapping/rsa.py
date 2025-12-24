@@ -23,7 +23,7 @@ def generar_llaves_rsa():
     # Elegir e aleatorio válido
     while True:
         e = random.randrange(2, phi)
-        # Verificamos requisitos del PDF: gcd(e, phi)=1, e!=3, e!=65537, e impar
+        # Verificaciones
         if GCD(e, phi) == 1 and e != 3 and e != 65537 and e % 2 != 0:
             break
 
@@ -55,38 +55,52 @@ def generar_llaves_rsa():
 
 # RSA Cipher
 def cifrar_rsa():
-    print("\n--- Cifrado RSA (Raw) ---\n")
+    print("\n--- Cifrado RSA ---\n")
 
     # Pedir llave pública (e, n)
     try:
         print("Ingrese la llave pública:")
         e = int(input("Valor de e: "))
         n = int(input("Valor de n: "))
+
+        # Pedir el nombre del archivo con la llave
+        archivo_k = input("Ingrese el nombre del archivo con la llave a cifrar: ")
     except ValueError:
-        print("Error: Ingrese valores numéricos válidos.")
+        print("Error: Datos inválidos.")
         return
 
-    # Generar número aleatorio r de 32 bits
-    r = random.getrandbits(32)
-    print(f"\nMensaje aleatorio generado (r): {r}")
+    try:
+        with open(archivo_k, "r") as f:
+            hex_content = f.read().strip()
+
+        # Hexadecimal a decimal
+        r = int(hex_content, 16)
+
+        print(f"\nLlave leída (HEX): {hex_content}")
+        print(f"Llave convertida (INT): {r}")
+    except IOError:
+        print("No se pudo abrir el archivo de la llave.")
+        return
 
     # Cifrar
     c = pow(r, e, n)
 
     print(f"Texto cifrado (c): {c}")
 
+    archivo = input("\nIngresa el nombre del archivo para guardar tu llave cifrada: ")
+
     # Guardar en archivo
     try:
-        with open("rsa_cipher.txt", "w") as f:
+        with open(archivo, "w") as f:
             f.write(str(c))
-        print("El valor de 'c' se ha guardado en 'rsa_cipher.txt'.")
+        print(f"El valor de 'c' se ha guardado en '{archivo}'.")
     except IOError:
         print("Error al escribir el archivo.")
 
 
 # RSA Decipher
 def descifrar_rsa():
-    print("\n--- Descifrado RSA (Raw) ---\n")
+    print("\n--- Descifrado RSA ---\n")
 
     # Pedir llave privada (d, n)
     try:
@@ -94,17 +108,28 @@ def descifrar_rsa():
         d = int(input("Valor de d: "))
         n = int(input("Valor de n: "))
 
-        # Pedir el valor de c
-        c = int(input("Ingrese el valor del texto cifrado (c): "))
+        # Pedir el nombre del archivo con la llave
+        archivo_k = input("Ingrese el nombre del archivo con la llave a descifrar: ")
+
+        # Abrimos el archivo de la llave cifrada
+        with open(archivo_k, "r") as f:
+            c = int(f.read().strip())
     except ValueError:
         print("Error: Ingrese valores numéricos válidos.")
         return
 
     # Descifrar
     m = pow(c, d, n)
+    print(f"\nLlave recuperada (INT): {m}")
 
-    print(f"\nMensaje descifrado (m): {m}")
-    print("-" * 60)
+    # Convertimos a hexadecimal
+    m_hex = hex(m)[2:].upper()
+    print(f"Llave recuperada (HEX): {m_hex}")
+
+    archivo = input("\nIngresa el nombre del archivo para guardar tu llave recuperada: ")
+
+    with open(archivo, "w") as f:
+        f.write(m_hex)
 
 
 def main():
@@ -114,6 +139,7 @@ def main():
 
         if opc == 1:
             generar_llaves_rsa()
+            break
         elif opc == 2:
             cifrar_rsa()
             break
