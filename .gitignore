@@ -27,3 +27,41 @@ eggs/
 # Variables de entorno (¡Seguridad!)
 .env
 .env.local
+
+# --- C / C++ ---
+# Archivos Objeto (compilación intermedia)
+*.o
+*.obj
+
+# Archivos Ejecutables y Librerías
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.dylib
+
+# Carpetas de compilación comunes
+bin/
+obj/
+build/
+debug/
+release/
+
+# Archivos temporales de makefiles (opcional)
+*.bak
+*.tmp
+
+# --- OS & Editores ---
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# VS Code
+.vscode/
+
+# IntelliJ / PyCharm
+.idea/
