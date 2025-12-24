@@ -109,7 +109,7 @@ Bob decrypts the Message: Bob runs the C program using the recovered_key.txt.
 ./cipher
 
 ```
-# Select Option 3 (Bob Decrypt)
+Select Option 3 (Bob Decrypt)
 ## 👥 Authors
 - José Roberto López Reyes
 
