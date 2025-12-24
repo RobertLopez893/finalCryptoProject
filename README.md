@@ -54,7 +54,7 @@ Run the Python script to generate RSA keys for Bob.
 python rsa_key_wrapper.py
 ```
 
-# Select Option 1: Generate RSA Key Pair
+Select Option 1: Generate RSA Key Pair
 
 ### Phase 2: Alice Generates the Secret 💻
 Compile and run the C program.
@@ -65,9 +65,9 @@ gcc main.c -o cipher
 ./cipher
 ```
 
-# Select Option 1 to generate the Symmetric Key, S-Box, and Permutation.
+Select Option 1 to generate the Symmetric Key, S-Box, and Permutation.
 
-# Output: key.txt, sbox.txt, perm.txt.
+**Output:** key.txt, sbox.txt, perm.txt.
 
 ### Phase 3: Key Wrapping (The Bridge) 🐍
 Alice uses Python to encrypt the Symmetric Key using Bob's Public Key.
@@ -77,8 +77,8 @@ Alice uses Python to encrypt the Symmetric Key using Bob's Public Key.
 python rsa_key_wrapper.
 ```
 
-# Select Option 2: RSA Cipher
-# Input: key.txt -> Output: encrypted_key.txt
+Select Option 2: RSA Cipher
+**Input:** key.txt -> Output: encrypted_key.txt
 Alice sends encrypted_key.txt and the sbox/perm files to Bob.
 
 ### Phase 4: Encryption (Alice) 💻
@@ -89,7 +89,7 @@ Alice uses the C program to encrypt her message file using the original key.txt.
 ./cipher
 ```
 
-# Select Option 2 (Alice Encrypt)
+Select Option 2 (Alice Encrypt)
 ### Phase 5: Decryption (Bob) 🔓
 Bob recovers the Key: Bob uses his Private RSA Key in Python to decrypt encrypted_key.txt.
 
@@ -99,8 +99,8 @@ python rsa_key_wrapper.py
 
 ```
 
-# Select Option 3: RSA Decipher
-# Output: recovered_key.txt
+Select Option 3: RSA Decipher
+**Output:** recovered_key.txt
 Bob decrypts the Message: Bob runs the C program using the recovered_key.txt.
 
 
@@ -114,6 +114,8 @@ Bob decrypts the Message: Bob runs the C program using the recovered_key.txt.
 - José Roberto López Reyes
 
 - Alejandro Hernández Zamora
+
+---
 
 Computer Systems Engineering - ESCOM IPN Cryptography Course - Group 6CV4
 
