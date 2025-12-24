@@ -117,6 +117,4 @@ Select Option 3 (Bob Decrypt)
 
 ---
 
-Computer Systems Engineering - ESCOM IPN Cryptography Course - Group 6CV4
-
 Disclaimer: This is an educational project designed to demonstrate cryptographic principles. It is intended for academic use and not for securing sensitive production data.
