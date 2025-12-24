@@ -1,1 +1,29 @@
+# --- Python ---
+# Byte-compiled / Optimizados / DLLs
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos Virtuales (diferentes nombres comunes)
+venv/
+env/
+.venv/
+.env/
+
+# Distribución y Builds
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
 .idea/
+
+# Jupyter Notebooks (común en ciencia de datos)
+.ipynb_checkpoints
+
+# Variables de entorno (¡Seguridad!)
+.env
+.env.local
