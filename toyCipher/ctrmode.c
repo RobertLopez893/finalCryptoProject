@@ -575,9 +575,9 @@ void bob_receiver()
 
     printf("Nombre de la llave recibida: ");
     scanf("%255s", key_name);
-    printf("Nombre de la S-Box Inversa: ");
+    printf("Nombre de la S-Box: ");
     scanf("%255s", sbox_name);
-    printf("Nombre de la Permutación Inversa: ");
+    printf("Nombre de la Permutación: ");
     scanf("%255s", perm_name);
 
     unsigned int K = load_key(key_name);
