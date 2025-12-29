@@ -221,29 +221,6 @@ int *load_s_file(const char *filename)
     return S;
 }
 
-// Generates random S function
-void gen_function(const char *filename)
-{
-    int *S = (int *)malloc(16 * sizeof(int));
-
-    for (int i = 0; i < 16; i++)
-    {
-        S[i] = i;
-    }
-
-    for (int i = 15; i > 0; i--)
-    {
-        int j = rand() % (i + 1);
-
-        int temp = S[i];
-        S[i] = S[j];
-        S[j] = temp;
-    }
-
-    save_s_file(S, filename);
-    free(S);
-}
-
 // Obtain the inverse Sbox
 void gen_inv_function(int *S, const char *filename)
 {
@@ -319,27 +296,6 @@ int *load_perm_file(const char *filename)
     fclose(file);
     printf("Permutation loaded successfully.\n");
     return P;
-}
-
-// Generate Random Permutation
-void gen_perm(const char *filename)
-{
-    int n = 8;
-    int *P = (int *)malloc(n * sizeof(int));
-
-    for (int i = 0; i < n; i++)
-    {
-        P[i] = i + 1;
-    }
-
-    for (int i = n - 1; i > 0; i--)
-    {
-        int j = rand() % (i + 1);
-        swap_ints(&P[i], &P[j]);
-    }
-
-    save_perm_file(P, filename);
-    free(P);
 }
 
 // Obtain the inverse Permutation
@@ -436,70 +392,65 @@ unsigned char decipher(unsigned char C, unsigned int K, int *S, int *P)
 /* --- Generate all the files --- */
 
 // Generates all files by asking for their names
-void generate_files_interactive()
+void generate_all_files()
 {
-    char fname[256];
+    char fname_orig[256];
+    char fname_inv[256];
 
-    printf("\n--- Generating New Crypto Files ---\n");
+    printf("--- Generación de S-Box y Permutación ---\n");
 
-    printf("Name for new Key file: ");
-    if (scanf("%255s", fname) == 1)
-        gen_key(fname);
+    printf("\nGenerando S-Box...\n");
+    
+    int *S = (int *)malloc(16 * sizeof(int));
+    if (S == NULL) { printf("Error de memoria.\n"); return; }
 
-    printf("Name for new S-Box file: ");
-    if (scanf("%255s", fname) == 1)
-        gen_function(fname);
+    for (int i = 0; i < 16; i++) S[i] = i;
 
-    printf("Name for new Permutation file: ");
-    if (scanf("%255s", fname) == 1)
-        gen_perm(fname);
-
-    printf("--- Files Generated ---\n");
-    while (getchar() != '\n')
-        ;
-}
-
-// Generates Inverse Files based on existing originals
-void generate_inverse_files_interactive()
-{
-    char input_fname[256];
-    char output_fname[256];
-
-    printf("\n--- Generating Inverse Files ---\n");
-
-    printf("Enter filename of the S-Box to invert: ");
-    if (scanf("%255s", input_fname) == 1)
-    {
-        int *S = load_s_file(input_fname);
-        if (S)
-        {
-            printf("Name for the Inverse S-Box file: ");
-            if (scanf("%255s", output_fname) == 1)
-            {
-                gen_inv_function(S, output_fname);
-            }
-            free(S);
-        }
+    for (int i = 15; i > 0; i--) {
+        int j = rand() % (i + 1);
+        int temp = S[i]; S[i] = S[j]; S[j] = temp;
     }
 
-    printf("Enter filename of the Permutation to invert: ");
-    if (scanf("%255s", input_fname) == 1)
-    {
-        int *P = load_perm_file(input_fname);
-        if (P)
-        {
-            printf("Name for the Inverse Permutation file: ");
-            if (scanf("%255s", output_fname) == 1)
-            {
-                gen_inv_permn(P, output_fname);
-            }
-            free(P);
-        }
+    printf("Nombre para guardar la S-Box: ");
+    if (scanf("%255s", fname_orig) == 1) {
+        save_s_file(S, fname_orig);
     }
 
-    printf("--- Inverse Files Generated ---\n");
-    while (getchar() != '\n')
-        ;
+    printf("Nombre para guardar la S-Box Inversa: ");
+    if (scanf("%255s", fname_inv) == 1) {
+        gen_inv_function(S, fname_inv);
+    }
+    
+    free(S);
+
+
+    printf("\nGenerando Permutación...\n");
+
+    int *P = (int *)malloc(8 * sizeof(int));
+    if (P == NULL) { printf("Error de memoria.\n"); return; }
+
+    for (int i = 0; i < 8; i++) P[i] = i + 1;
+
+    for (int i = 7; i > 0; i--) {
+        int j = rand() % (i + 1);
+        int temp = P[i]; P[i] = P[j]; P[j] = temp;
+    }
+
+    printf("Nombre para guardar la Permutación: ");
+    if (scanf("%255s", fname_orig) == 1) {
+        save_perm_file(P, fname_orig);
+    }
+
+    printf("Nombre para guardar la Permutación Inversa: ");
+    if (scanf("%255s", fname_inv) == 1) {
+        gen_inv_permn(P, fname_inv);
+    }
+
+    free(P);
+
+    printf("\n--- Proceso Completo: Archivos listos para usarse ---\n");
+
+    while (getchar() != '\n');
 }
 
 /* --- Reads text from file --- */
@@ -543,181 +494,139 @@ void write_file_content(const char *filename, const char *content)
 /* --- Ciphering and Deciphering flows --- */
 
 // Ciphering Person
-void bob()
+void alice_sender()
 {
-    printf("\n--- BOB (Encryption) ---\n");
-
     char key_name[256], sbox_name[256], perm_name[256];
+    char plain_filename[256], out_filename[256];
+    char plaintext[1024];
 
-    printf("\nEnter Key filename: ");
-    if (fgets(key_name, sizeof(key_name), stdin))
-        key_name[strcspn(key_name, "\n")] = 0;
+    while (getchar() != '\n' && !feof(stdin));
 
-    printf("Enter S-box filename: ");
-    if (fgets(sbox_name, sizeof(sbox_name), stdin))
-        sbox_name[strcspn(sbox_name, "\n")] = 0;
+    printf("\n--- Alice (Cifrado) ---\n");
 
-    printf("Enter Permutation filename: ");
-    if (fgets(perm_name, sizeof(perm_name), stdin))
-        perm_name[strcspn(perm_name, "\n")] = 0;
+    printf("Nombre para la nueva llave: ");
+    if (scanf("%255s", key_name) == 1) {
+        gen_key(key_name);
+    }
+    
+    printf("Nombre de la S-Box a usar: ");
+    scanf("%255s", sbox_name);
+    printf("Nombre de la Permutación a usar: ");
+    scanf("%255s", perm_name);
 
     unsigned int K = load_key(key_name);
     int *S = load_s_file(sbox_name);
     int *P = load_perm_file(perm_name);
 
-    if (!S || !P || K == 0)
-    {
-        printf("Error: Could not load files. Make sure they exist.\n");
-        if (S)
-            free(S);
-        if (P)
-            free(P);
+    if (!S || !P || K == 0) {
+        printf("Error: Faltan archivos.\n");
+        if(S) free(S); if(P) free(P);
         return;
     }
 
-    char plain_filename[256];
-    char plaintext[1024];
-
-    printf("\nEnter the plaintext filename: ");
+    while (getchar() != '\n'); 
+    
+    printf("Nombre del archivo de Texto Plano: ");
     if (fgets(plain_filename, sizeof(plain_filename), stdin))
-    {
         plain_filename[strcspn(plain_filename, "\n")] = 0;
-    }
 
-    if (!read_file_content(plain_filename, plaintext, sizeof(plaintext)))
-    {
-        free(S);
-        free(P);
-        return;
+    if (!read_file_content(plain_filename, plaintext, sizeof(plaintext))) {
+        free(S); free(P); return;
     }
 
     size_t len = strlen(plaintext);
     unsigned char *buffer = malloc(len + 1);
-    if (!buffer)
-    {
-        printf("Memory Error.\n");
-        free(S);
-        free(P);
-        return;
-    }
-
     unsigned char IV = rand() % 256;
     buffer[0] = IV;
 
-    printf("\nEncrypting with IV: %02X\n", IV);
+    printf("Encrypting with IV: %02X\n", IV);
 
-    for (size_t i = 0; i < len; i++)
-    {
-        unsigned char counter_val = IV + i;
-        unsigned char keystream_byte = cipher(counter_val, K, S, P);
-        buffer[i + 1] = (unsigned char)plaintext[i] ^ keystream_byte;
+    for (size_t i = 0; i < len; i++) {
+        unsigned char keystream = cipher(IV + i, K, S, P);
+        buffer[i + 1] = (unsigned char)plaintext[i] ^ keystream;
     }
 
+    // 5. Guardar como Base64
     char *b64_out = base64_encode(buffer, len + 1);
-
-    if (b64_out)
-    {
-        printf("--------------------------------------------------\n");
-        printf("Ciphertext (Base64): %s\n", b64_out);
-        printf("--------------------------------------------------\n");
-
-        char out_filename[256];
-        printf("Enter filename to save Ciphertext: ");
+    if (b64_out) {
+        printf("\nCiphertext: %s\n", b64_out);
+        printf("Nombre para guardar Cifrado: ");
         if (fgets(out_filename, sizeof(out_filename), stdin))
             out_filename[strcspn(out_filename, "\n")] = 0;
+        
         write_file_content(out_filename, b64_out);
         free(b64_out);
     }
 
-    free(buffer);
-    free(S);
-    free(P);
+    free(buffer); free(S); free(P);
+    printf("\n--- Alice ha terminado ---\n");
 }
 
 // Deciphering Person
-void alice()
+void bob_receiver()
 {
-    printf("\n--- ALICE (Decryption) ---\n");
-
     char key_name[256], sbox_name[256], perm_name[256];
+    char cipher_filename[256], out_filename[256];
+    char b64_input[2048];
 
-    printf("Enter Key file: ");
-    if (fgets(key_name, sizeof(key_name), stdin))
-        key_name[strcspn(key_name, "\n")] = 0;
-    printf("Enter Standard S-box file: ");
-    if (fgets(sbox_name, sizeof(sbox_name), stdin))
-        sbox_name[strcspn(sbox_name, "\n")] = 0;
-    printf("Enter Standard Permutation file: ");
-    if (fgets(perm_name, sizeof(perm_name), stdin))
-        perm_name[strcspn(perm_name, "\n")] = 0;
+    while (getchar() != '\n' && !feof(stdin));
+
+    printf("\n--- Bob (Descifrado) ---\n");
+
+    printf("Nombre de la llave recibida: ");
+    scanf("%255s", key_name);
+    printf("Nombre de la S-Box Inversa: ");
+    scanf("%255s", sbox_name);
+    printf("Nombre de la Permutación Inversa: ");
+    scanf("%255s", perm_name);
 
     unsigned int K = load_key(key_name);
     int *S = load_s_file(sbox_name);
     int *P = load_perm_file(perm_name);
 
-    if (!S || !P || K == 0)
-    {
-        printf("Error: Files missing.\n");
-        if (S)
-            free(S);
-        if (P)
-            free(P);
+    if (!S || !P || K == 0) {
+        printf("Error: Faltan archivos.\n");
+        if(S) free(S); if(P) free(P);
         return;
     }
 
-    char cipher_filename[256];
-    char b64_input[2048];
-
-    printf("Enter the Ciphertext filename: ");
+    while (getchar() != '\n');
+    printf("Nombre del archivo cifrado: ");
     if (fgets(cipher_filename, sizeof(cipher_filename), stdin))
         cipher_filename[strcspn(cipher_filename, "\n")] = 0;
 
-    if (!read_file_content(cipher_filename, b64_input, sizeof(b64_input)))
-    {
-        free(S);
-        free(P);
-        return;
+    if (!read_file_content(cipher_filename, b64_input, sizeof(b64_input))) {
+        free(S); free(P); return;
     }
 
     size_t total_len;
     unsigned char *buffer = base64_decode(b64_input, strlen(b64_input), &total_len);
-
-    if (!buffer || total_len < 1)
-    {
-        printf("Error: Invalid Base64 or empty message.\n");
-        free(S);
-        free(P);
-        return;
+    
+    if (!buffer || total_len < 1) {
+        printf("Error: Base64 inválido.\n");
+        free(S); free(P); return;
     }
 
     unsigned char IV = buffer[0];
-    size_t cipher_len = total_len - 1; 
-    char *recovered = malloc(cipher_len + 1);
+    size_t msg_len = total_len - 1;
+    char *recovered = malloc(msg_len + 1);
 
-    printf("\nExtracted IV: %02X. Decrypting %zu bytes...\n", IV, cipher_len);
+    printf("Extracted IV: %02X\n", IV);
 
-    for (size_t i = 0; i < cipher_len; i++)
-    {
-        unsigned char counter_val = IV + i;
-        unsigned char keystream_byte = cipher(counter_val, K, S, P);
-        recovered[i] = buffer[i + 1] ^ keystream_byte;
+    for (size_t i = 0; i < msg_len; i++) {
+        unsigned char keystream = cipher(IV + i, K, S, P);
+        recovered[i] = buffer[i + 1] ^ keystream;
     }
-    recovered[cipher_len] = '\0';
+    recovered[msg_len] = '\0';
 
-    printf("--------------------------------------------------\n");
-    printf("Recovered Plaintext: %s\n", recovered);
-    printf("--------------------------------------------------\n");
-
-    char out_filename[256];
-    printf("Enter filename to save Recovered Text: ");
+    printf("Nombre para guardar texto recuperado: ");
     if (fgets(out_filename, sizeof(out_filename), stdin))
         out_filename[strcspn(out_filename, "\n")] = 0;
+    
     write_file_content(out_filename, recovered);
 
-    free(buffer);
-    free(recovered);
-    free(S);
-    free(P);
+    free(buffer); free(recovered); free(S); free(P);
+    printf("\n--- Bob ha terminado ---\n");
 }
 
 /* --- Main Function --- */
@@ -725,17 +634,39 @@ void alice()
 int main()
 {
     srand(time(NULL));
+    int choice = 0;
 
-    generate_files_interactive();
-    generate_inverse_files_interactive();
+    do {
+        printf("\n--- TOY BLOCK CIPHER ----\n");
+        printf("1. Generar Archivos\n");
+        printf("2. ALICE (Cifrar)\n");
+        printf("3. BOB   (Descifrar)\n");
+        printf("4. Salir\n");
+        printf("Elige una opcion: ");
+        
+        if (scanf("%d", &choice) != 1) {
+            while (getchar() != '\n');
+            choice = 0;
+        }
 
-    bob();
+        switch (choice) {
+            case 1:
+                generate_all_files();
+                break;
+            case 2:
+                alice_sender();
+                break;
+            case 3:
+                bob_receiver();
+                break;
+            case 4:
+                printf("Saliendo...\n");
+                break;
+            default:
+                printf("Opción inválida.\n");
+        }
 
-    printf("\n-----------------------------------\n");
-    printf("   Transmission through channel...   ");
-    printf("\n-----------------------------------\n");
-
-    alice();
+    } while (choice != 4);
 
     return 0;
 }
