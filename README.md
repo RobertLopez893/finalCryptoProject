@@ -2,7 +2,7 @@
 
 ![Language](https://img.shields.io/badge/Language-C-00599C?style=for-the-badge&logo=c&logoColor=white)
 ![Language](https://img.shields.io/badge/Language-Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Status](https://img.shields.io/badge/Status-In%20Progress-yellow?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Completed-success?style=for-the-badge)
 
 A robust academic implementation of a **Hybrid Cryptosystem**. This project combines a custom **Symmetric Toy Block Cipher** (SP-Network) implemented in **C** with an **RSA Key Wrapping** mechanism implemented in **Python** to securely exchange keys.
 
