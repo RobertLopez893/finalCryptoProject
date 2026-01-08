@@ -546,7 +546,6 @@ void alice_sender()
         buffer[i + 1] = (unsigned char)plaintext[i] ^ keystream;
     }
 
-    // 5. Guardar como Base64
     char *b64_out = base64_encode(buffer, len + 1);
     if (b64_out) {
         printf("\nCiphertext: %s\n", b64_out);
